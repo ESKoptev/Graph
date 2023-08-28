@@ -4,8 +4,8 @@ HWND hWnd;
 
 HANDLE  hThread;
 
-BOOL keys[256] = { 0 };
-BOOL isInit = FALSE;
+volatile BOOL keys[256] = { 0 };
+volatile BOOL isInit = FALSE;
 
 HDC hdc;
 
@@ -78,12 +78,12 @@ ATOM RegMyWindowClass(HINSTANCE, LPCTSTR);
 DWORD WINAPI MyThreadFunction(LPVOID lpParam)
 {
 	IGdata* ThreadIGdata;
-	// èìÿ áóäóùåãî êëàññà
+	// имя будущего класса
 	LPCTSTR lpzClass = TEXT("InitGraph Window Class");
 
 	ThreadIGdata = (IGdata*)lpParam;
 
-	// ðåãèñòðàöèÿ êëàññà
+	// регистрация класса
 	if (!RegMyWindowClass(ThreadIGdata->hInstance, lpzClass))
 		return 1;
 
@@ -91,24 +91,26 @@ DWORD WINAPI MyThreadFunction(LPVOID lpParam)
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE, ThreadIGdata->x, ThreadIGdata->y, ThreadIGdata->width, ThreadIGdata->height, NULL, NULL,
 		ThreadIGdata->hInstance, NULL);
 
-	// åñëè îêíî íå ñîçäàíî, îïèñàòåëü áóäåò ðàâåí 0
+	// если окно не создано, описатель будет равен 0
 	if (!hWnd) return 2;
 
 	if (ThreadIGdata->Mode == FULLSCREEN)
 	{
-		DEVMODE dmScreenSettings;			// Ðåæèì ðàáîòû
+		DEVMODE dmScreenSettings;			// Режим работы
 
-		memset(&dmScreenSettings, 0, sizeof(DEVMODE));	// Î÷èñòêà äëÿ õðàíåíèÿ óñòàíîâîê
-		dmScreenSettings.dmSize = sizeof(DEVMODE);		// Ðàçìåð ñòðóêòóðû Devmode
-		dmScreenSettings.dmPelsWidth = 640;			// Øèðèíà ýêðàíà
-		dmScreenSettings.dmPelsHeight = 480;			// Âûñîòà ýêðàíà
-		dmScreenSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;	// Ðåæèì Ïèêñåëà
+
+		memset(&dmScreenSettings, 0, sizeof(DEVMODE));// Очистка для хранения установок
+		dmScreenSettings.dmSize = sizeof(DEVMODE);// Размер структуры Devmode
+		dmScreenSettings.dmPelsWidth = 640;// Ширина экрана
+		dmScreenSettings.dmPelsHeight = 480;// Высота экрана
+		dmScreenSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;// Режим Пиксела
 		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);
-		//		LONG Res = ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
-		//		TCHAR TempStr[256];
-		//		_tprintf_s(TempStr, TEXT("Ðåçóëüòàò = %i"), Res);
-		//		MessageBox(NULL, TempStr, TEXT("Îøèáêà"), MB_OK);
-				// Ïåðåêëþ÷åíèå â ïîëíûé ýêðàí
+		//LONG Res = ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
+		//TCHAR TempStr[256];
+		//_tprintf_s(TempStr, TEXT("Результат = %i"), Res);
+		//MessageBox(NULL, TempStr, TEXT("Ошибка"), MB_OK);
+
+		// Переключение в полный экран
 
 		SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_TOPMOST);
 		SetWindowLong(hWnd, GWL_STYLE, WS_POPUP);
@@ -121,10 +123,10 @@ DWORD WINAPI MyThreadFunction(LPVOID lpParam)
 		isInit = TRUE;
 	}
 
-	// öèêë ñîîáùåíèé ïðèëîæåíèÿ
-	MSG msg = { 0 };    // ñòðóêòóðà ñîîáùåíèÿ
-	int iGetOk = 0;   // ïåðåìåííàÿ ñîñòîÿíèÿ
-	while (true) // öèêë ñîîáùåíèé
+	// цикл сообщений приложения
+	MSG msg = { 0 }; // структура сообщения
+	int iGetOk = 0; // переменная состояния
+	while (true) // цикл сообщений
 	{
 		while (!PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
 		{
@@ -135,44 +137,44 @@ DWORD WINAPI MyThreadFunction(LPVOID lpParam)
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 
-	} //while (true) êîíåö öèêëà ñîîáùåíèé
+	} //while (true) конец цикла сообщений
 	return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////// 
-// ôóíêöèÿ ðåãèñòðàöèè êëàññà îêîí
+// функция регистрации класса окон
 ATOM RegMyWindowClass(HINSTANCE hInst, LPCTSTR lpzClassName)
 {
 	WNDCLASS wcWindowClass = { 0 };
-	// àäðåñ ô-öèè îáðàáîòêè ñîîáùåíèé
+	// адрес ф-ции обработки сообщений
 	wcWindowClass.lpfnWndProc = (WNDPROC)WndProc;
-	// ñòèëü îêíà
+	// стиль окна
 	wcWindowClass.style = CS_HREDRAW | CS_VREDRAW;
-	// äèñêðèïòîð ýêçåìïëÿðà ïðèëîæåíèÿ
+	// дискриптор экземпляра приложения
 	wcWindowClass.hInstance = hInst;
-	// íàçâàíèå êëàññà
+	// название класса
 	wcWindowClass.lpszClassName = lpzClassName;
-	// çàãðóçêà êóðñîðà
+	// загрузка курсора
 	wcWindowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	// çàãðóçêà öâåòà îêîí
+	// загрузка цвета окон
 	BlackBrush = CreateSolidBrush(0);
 	wcWindowClass.hbrBackground = BlackBrush;
-	return RegisterClass(&wcWindowClass); // ðåãèñòðàöèÿ êëàññà
+	return RegisterClass(&wcWindowClass); // регистрация класса
 }
 
 ////////////////////////////////////////////////////////////////////////// 
-// ôóíêöèÿ îáðàáîòêè ñîîáùåíèé
+// функция обработки сообщений
 LRESULT CALLBACK WndProc(
 	HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	//	RECT win_rect;
 	HDC hdc;
 	PAINTSTRUCT ps;
-	// âûáîðêà è îáðàáîòêà ñîîáùåíèé
+	// выборка и обработка сообщений
 	switch (message)
 	{
 	case WM_PAINT:
-		// ðåàêöèÿ íà ñîîáùåíèå
+		// реакция на сообщение
 		hdc = BeginPaint(hWnd, &ps);
 //		SelectObject(hdc, GetStockObject(DC_PEN));
 //		SetDCPenColor(hdc, RGB(255, 255, 255));
@@ -187,10 +189,10 @@ LRESULT CALLBACK WndProc(
 		keys[wParam] = FALSE;
 		break;
 	case WM_DESTROY:
-		PostQuitMessage(0);  // ðåàêöèÿ íà ñîîáùåíèå
+		PostQuitMessage(0);  // реакция на сообщение
 		break;
 	default:
-		// âñå ñîîáùåíèÿ íå îáðàáîòàííûå Âàìè îáðàáîòàåò ñàìà Windows
+		// все сообщения не обработанные Вами обработает сама Windows
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;

@@ -97,14 +97,22 @@ int dragon(HDC hdc)
 	SelectObject(hdc, GetStockObject(DC_PEN));
 	SetDCPenColor(hdc, RGB(255, 255, 255));
 
-	for (int cnt = 0; cnt < 2*Npnts; ++cnt)
+	LPPOINT pntsl;
+	pntsl = (LPPOINT)malloc((2*Npnts+1)*sizeof(POINT));
+	for (int cnt = 0; cnt < 2 * Npnts + 1; ++cnt)
+	{
+		pntsl[cnt].x = long(pnts[cnt].x);
+		pntsl[cnt].y = long(pnts[cnt].y);
+	}
+	Polyline(hdc, pntsl, 2 * Npnts + 1);
+/*	for (int cnt = 0; cnt < 2*Npnts; ++cnt)
 	{
 //		SetPixel(hdc, pnts[cnt].x, pnts[cnt].y, RGB(255, 255, 255));
 		MoveToEx(hdc, int(pnts[cnt].x), int(pnts[cnt].y), NULL);
 		LineTo(hdc, int(pnts[cnt + 1].x), int(pnts[cnt + 1].y));
 
-	}
-
+	}*/
+	free(pntsl);
 	return 0;
 }
 int WINAPI _tWinMain(HINSTANCE hInstance,
@@ -113,14 +121,17 @@ int WINAPI _tWinMain(HINSTANCE hInstance,
 
 	HDC hdc = InitGraph(0, 0, 640, 480, FULLSCREEN);
 
+	fern(hdc);
+
+	while (!isKey(VK_ESCAPE)) {}
+
 	dragon(hdc);
+
+	while (isKey(VK_ESCAPE)) {}
 
 	while (!isKey(VK_ESCAPE)) {}
 
 	CloseGraph();
-
-	char Str[10];
-	gets_s(Str);
 
 	return 0;
 }
