@@ -78,12 +78,12 @@ ATOM RegMyWindowClass(HINSTANCE, LPCTSTR);
 DWORD WINAPI MyThreadFunction(LPVOID lpParam)
 {
 	IGdata* ThreadIGdata;
-	// имя будущего класса
+	// ГЁГ¬Гї ГЎГіГ¤ГіГ№ГҐГЈГ® ГЄГ«Г Г±Г±Г 
 	LPCTSTR lpzClass = TEXT("InitGraph Window Class");
 
 	ThreadIGdata = (IGdata*)lpParam;
 
-	// регистрация класса
+	// Г°ГҐГЈГЁГ±ГІГ°Г Г¶ГЁГї ГЄГ«Г Г±Г±Г 
 	if (!RegMyWindowClass(ThreadIGdata->hInstance, lpzClass))
 		return 1;
 
@@ -91,24 +91,24 @@ DWORD WINAPI MyThreadFunction(LPVOID lpParam)
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE, ThreadIGdata->x, ThreadIGdata->y, ThreadIGdata->width, ThreadIGdata->height, NULL, NULL,
 		ThreadIGdata->hInstance, NULL);
 
-	// если окно не создано, описатель будет равен 0
+	// ГҐГ±Г«ГЁ Г®ГЄГ­Г® Г­ГҐ Г±Г®Г§Г¤Г Г­Г®, Г®ГЇГЁГ±Г ГІГҐГ«Гј ГЎГіГ¤ГҐГІ Г°Г ГўГҐГ­ 0
 	if (!hWnd) return 2;
 
 	if (ThreadIGdata->Mode == FULLSCREEN)
 	{
-		DEVMODE dmScreenSettings;			// Режим работы
+		DEVMODE dmScreenSettings;			// ГђГҐГ¦ГЁГ¬ Г°Г ГЎГ®ГІГ»
 
-		memset(&dmScreenSettings, 0, sizeof(DEVMODE));	// Очистка для хранения установок
-		dmScreenSettings.dmSize = sizeof(DEVMODE);		// Размер структуры Devmode
-		dmScreenSettings.dmPelsWidth = 640;			// Ширина экрана
-		dmScreenSettings.dmPelsHeight = 480;			// Высота экрана
-		dmScreenSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;	// Режим Пиксела
+		memset(&dmScreenSettings, 0, sizeof(DEVMODE));	// ГЋГ·ГЁГ±ГІГЄГ  Г¤Г«Гї ГµГ°Г Г­ГҐГ­ГЁГї ГіГ±ГІГ Г­Г®ГўГ®ГЄ
+		dmScreenSettings.dmSize = sizeof(DEVMODE);		// ГђГ Г§Г¬ГҐГ° Г±ГІГ°ГіГЄГІГіГ°Г» Devmode
+		dmScreenSettings.dmPelsWidth = 640;			// ГГЁГ°ГЁГ­Г  ГЅГЄГ°Г Г­Г 
+		dmScreenSettings.dmPelsHeight = 480;			// Г‚Г»Г±Г®ГІГ  ГЅГЄГ°Г Г­Г 
+		dmScreenSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;	// ГђГҐГ¦ГЁГ¬ ГЏГЁГЄГ±ГҐГ«Г 
 		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);
 		//		LONG Res = ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
 		//		TCHAR TempStr[256];
-		//		_tprintf_s(TempStr, TEXT("Результат = %i"), Res);
-		//		MessageBox(NULL, TempStr, TEXT("Ошибка"), MB_OK);
-				// Переключение в полный экран
+		//		_tprintf_s(TempStr, TEXT("ГђГҐГ§ГіГ«ГјГІГ ГІ = %i"), Res);
+		//		MessageBox(NULL, TempStr, TEXT("ГЋГёГЁГЎГЄГ "), MB_OK);
+				// ГЏГҐГ°ГҐГЄГ«ГѕГ·ГҐГ­ГЁГҐ Гў ГЇГ®Г«Г­Г»Г© ГЅГЄГ°Г Г­
 
 		SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_TOPMOST);
 		SetWindowLong(hWnd, GWL_STYLE, WS_POPUP);
@@ -121,58 +121,58 @@ DWORD WINAPI MyThreadFunction(LPVOID lpParam)
 		isInit = TRUE;
 	}
 
-	// цикл сообщений приложения
-	MSG msg = { 0 };    // структура сообщения
-	int iGetOk = 0;   // переменная состояния
-	while (true) // цикл сообщений
+	// Г¶ГЁГЄГ« Г±Г®Г®ГЎГ№ГҐГ­ГЁГ© ГЇГ°ГЁГ«Г®Г¦ГҐГ­ГЁГї
+	MSG msg = { 0 };    // Г±ГІГ°ГіГЄГІГіГ°Г  Г±Г®Г®ГЎГ№ГҐГ­ГЁГї
+	int iGetOk = 0;   // ГЇГҐГ°ГҐГ¬ГҐГ­Г­Г Гї Г±Г®Г±ГІГ®ГїГ­ГЁГї
+	while (true) // Г¶ГЁГЄГ« Г±Г®Г®ГЎГ№ГҐГ­ГЁГ©
 	{
 		while (!PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
 		{
 
 		} //while (!PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
-		if ((iGetOk = GetMessage(&msg, NULL, 0, 0)) == -1) return 3;  // если GetMessage вернул ошибку - выход
+		if ((iGetOk = GetMessage(&msg, NULL, 0, 0)) == -1) return 3;  // ГҐГ±Г«ГЁ GetMessage ГўГҐГ°Г­ГіГ« Г®ГёГЁГЎГЄГі - ГўГ»ГµГ®Г¤
 		else if (iGetOk == 0) return msg.wParam;
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 
-	} //while (true) конец цикла сообщений
+	} //while (true) ГЄГ®Г­ГҐГ¶ Г¶ГЁГЄГ«Г  Г±Г®Г®ГЎГ№ГҐГ­ГЁГ©
 	return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////// 
-// функция регистрации класса окон
+// ГґГіГ­ГЄГ¶ГЁГї Г°ГҐГЈГЁГ±ГІГ°Г Г¶ГЁГЁ ГЄГ«Г Г±Г±Г  Г®ГЄГ®Г­
 ATOM RegMyWindowClass(HINSTANCE hInst, LPCTSTR lpzClassName)
 {
 	WNDCLASS wcWindowClass = { 0 };
-	// адрес ф-ции обработки сообщений
+	// Г Г¤Г°ГҐГ± Гґ-Г¶ГЁГЁ Г®ГЎГ°Г ГЎГ®ГІГЄГЁ Г±Г®Г®ГЎГ№ГҐГ­ГЁГ©
 	wcWindowClass.lpfnWndProc = (WNDPROC)WndProc;
-	// стиль окна
+	// Г±ГІГЁГ«Гј Г®ГЄГ­Г 
 	wcWindowClass.style = CS_HREDRAW | CS_VREDRAW;
-	// дискриптор экземпляра приложения
+	// Г¤ГЁГ±ГЄГ°ГЁГЇГІГ®Г° ГЅГЄГ§ГҐГ¬ГЇГ«ГїГ°Г  ГЇГ°ГЁГ«Г®Г¦ГҐГ­ГЁГї
 	wcWindowClass.hInstance = hInst;
-	// название класса
+	// Г­Г Г§ГўГ Г­ГЁГҐ ГЄГ«Г Г±Г±Г 
 	wcWindowClass.lpszClassName = lpzClassName;
-	// загрузка курсора
+	// Г§Г ГЈГ°ГіГ§ГЄГ  ГЄГіГ°Г±Г®Г°Г 
 	wcWindowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	// загрузка цвета окон
+	// Г§Г ГЈГ°ГіГ§ГЄГ  Г¶ГўГҐГІГ  Г®ГЄГ®Г­
 	BlackBrush = CreateSolidBrush(0);
 	wcWindowClass.hbrBackground = BlackBrush;
-	return RegisterClass(&wcWindowClass); // регистрация класса
+	return RegisterClass(&wcWindowClass); // Г°ГҐГЈГЁГ±ГІГ°Г Г¶ГЁГї ГЄГ«Г Г±Г±Г 
 }
 
 ////////////////////////////////////////////////////////////////////////// 
-// функция обработки сообщений
+// ГґГіГ­ГЄГ¶ГЁГї Г®ГЎГ°Г ГЎГ®ГІГЄГЁ Г±Г®Г®ГЎГ№ГҐГ­ГЁГ©
 LRESULT CALLBACK WndProc(
 	HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	//	RECT win_rect;
 	HDC hdc;
 	PAINTSTRUCT ps;
-	// выборка и обработка сообщений
+	// ГўГ»ГЎГ®Г°ГЄГ  ГЁ Г®ГЎГ°Г ГЎГ®ГІГЄГ  Г±Г®Г®ГЎГ№ГҐГ­ГЁГ©
 	switch (message)
 	{
 	case WM_PAINT:
-		// реакция на сообщение
+		// Г°ГҐГ ГЄГ¶ГЁГї Г­Г  Г±Г®Г®ГЎГ№ГҐГ­ГЁГҐ
 		hdc = BeginPaint(hWnd, &ps);
 //		SelectObject(hdc, GetStockObject(DC_PEN));
 //		SetDCPenColor(hdc, RGB(255, 255, 255));
@@ -187,10 +187,10 @@ LRESULT CALLBACK WndProc(
 		keys[wParam] = FALSE;
 		break;
 	case WM_DESTROY:
-		PostQuitMessage(0);  // реакция на сообщение
+		PostQuitMessage(0);  // Г°ГҐГ ГЄГ¶ГЁГї Г­Г  Г±Г®Г®ГЎГ№ГҐГ­ГЁГҐ
 		break;
 	default:
-		// все сообщения не обработанные Вами обработает сама Windows
+		// ГўГ±ГҐ Г±Г®Г®ГЎГ№ГҐГ­ГЁГї Г­ГҐ Г®ГЎГ°Г ГЎГ®ГІГ Г­Г­Г»ГҐ Г‚Г Г¬ГЁ Г®ГЎГ°Г ГЎГ®ГІГ ГҐГІ Г±Г Г¬Г  Windows
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
